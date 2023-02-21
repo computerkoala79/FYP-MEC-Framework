@@ -13,6 +13,8 @@ import service.core.NodeClientLatencyRequest;
 import service.core.NodeInfoRequest;
 import service.util.Gsons;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URI;
 
 public class ServiceNodeWsClient extends WebSocketClient {
@@ -32,7 +34,19 @@ public class ServiceNodeWsClient extends WebSocketClient {
     public final void sendAsJson(Message message) {
         logger.debug("Sending: {}", message);
         String json = gson.toJson(message);
+        writeOutputToFIle(message);
         send(json);
+    }
+
+    private void writeOutputToFIle(Message message){
+        FileWriter file = null;
+        try {
+            file = new FileWriter("servicenode.json");
+            file.write(gson.toJson(message));
+            file.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

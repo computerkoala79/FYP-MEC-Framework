@@ -19,6 +19,9 @@ import service.orchestrator.nodes.ServiceNodeRegistry;
 import service.orchestrator.properties.OrchestratorProperties;
 import service.util.Gsons;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -315,5 +318,16 @@ public class Orchestrator extends WebSocketServer implements Migrator {
 
         serviceNodeRegistry.removeNodeWithWebsocket(webSocket);
         mobileClientRegistry.removeClientWithWebsocket(webSocket);
+    }
+
+    private void writeOutputToFIle(Message message){
+        FileWriter file = null;
+        try {
+            file = new FileWriter("orchestratornode.json", true);
+            file.write(gson.toJson(message));
+            file.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

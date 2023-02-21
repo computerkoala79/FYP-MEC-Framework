@@ -136,4 +136,5 @@ public class NodeInfo extends Message {
                 ", latencies=" + mapToString(latencies) +
                 '}';
     }
+
 }

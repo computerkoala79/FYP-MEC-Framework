@@ -34,6 +34,16 @@ public class ServiceNodeMetrics {
     private final List<Long> storage = new ArrayList<>();
     private long[] cpuTicks = hal.getProcessor().getSystemCpuLoadTicks();
 
+    private double cpuLoadIncrease;
+    private boolean maxOutMemoryLoad;
+
+
+    public void setCpuLoadIncrease(double cpuLoadIncrease) {
+        this.cpuLoadIncrease = cpuLoadIncrease;
+    }
+
+    public void setMaxOutMemoryLoad(boolean maxOutMemoryLoad) { this.maxOutMemoryLoad = maxOutMemoryLoad;}
+
     public ServiceNodeMetrics(long pingDelay) {
         this.pingDelay = pingDelay;
 
@@ -41,7 +51,7 @@ public class ServiceNodeMetrics {
             // CPU
             double load = hal.getProcessor().getSystemCpuLoadBetweenTicks(cpuTicks);
             synchronized (cpuLoad) {
-                cpuLoad.add(load);
+                cpuLoad.add(load+cpuLoadIncrease);
             }
             cpuTicks = hal.getProcessor().getSystemCpuLoadTicks();
 
@@ -49,6 +59,7 @@ public class ServiceNodeMetrics {
             double totalMemory = hal.getMemory().getTotal();
             long availableMemory = hal.getMemory().getAvailable();
             double fractionMemoryUsed = 1.0 - (availableMemory / totalMemory);
+            if (maxOutMemoryLoad) fractionMemoryUsed = 1.0;
 
             synchronized (memoryLoad) {
                 memoryLoad.add(fractionMemoryUsed);
@@ -71,38 +82,44 @@ public class ServiceNodeMetrics {
         scheduleService.scheduleAtFixedRate(latencyMonitor, 5, 5, TimeUnit.SECONDS);
     }
 
-    // todo make this more concise
-    //  extract into different classes
-    public void populateNodeInfo(NodeInfo nodeInfo) {
+    private void populateCPULoad(NodeInfo nodeInfo){
         List<Double> cpuCopy;
         synchronized (cpuLoad) {
             cpuCopy = new ArrayList<>(cpuLoad);
             cpuLoad.clear();
         }
         nodeInfo.setCpuLoad(cpuCopy);
+    }
 
+    private void populateMemoryLoad(NodeInfo nodeInfo){
         List<Double> memoryLoadCopy;
         synchronized (memoryLoad) {
             memoryLoadCopy = new ArrayList<>(memoryLoad);
             memoryLoad.clear();
         }
         nodeInfo.setMemoryLoad(memoryLoadCopy);
+    }
 
-        List<Long> mainMemoryCopy;
-        synchronized (mainMemory) {
-            mainMemoryCopy = new ArrayList<>(mainMemory);
-            mainMemory.clear();
-        }
-        nodeInfo.setMainMemory(mainMemoryCopy);
-
+    private void populateStorageLoad(NodeInfo nodeInfo){
         List<Long> storageCopy;
         synchronized (storage) {
             storageCopy = new ArrayList<>(storage);
             storage.clear();
         }
         nodeInfo.setStorage(storageCopy);
+    }
+
+
+
+    // todo make this more concise
+    //  extract into different classes
+    public void populateNodeInfo(NodeInfo nodeInfo) {
+        populateCPULoad(nodeInfo);
+        populateMemoryLoad(nodeInfo);
+        populateStorageLoad(nodeInfo);
 
         Map<UUID, List<Long>> delayedLatencies = latenciesWithDelay(latencyMonitor.takeLatencySnapshot());
+
         nodeInfo.setLatencies(delayedLatencies);
     }
 
@@ -114,6 +131,18 @@ public class ServiceNodeMetrics {
                     .map(latency -> latency + pingDelay)
                     .collect(toList());
             delayedLatencies.put(entry.getKey(), delayed);
+        }
+        System.out.println("---------------------------------");
+        System.out.println(delayedLatencies.toString());
+        System.out.println("---------------------------------");
+
+        if(delayedLatencies.isEmpty()){
+            System.out.println("---------------------------------");
+            System.out.println(" Delayed Latencies is empty. ");
+            System.out.println("---------------------------------");
+            List<Long> delayList = new ArrayList<>();
+            delayList.add(pingDelay);
+            delayedLatencies.put(UUID.randomUUID(),delayList);
         }
         return Collections.unmodifiableMap(delayedLatencies);
     }

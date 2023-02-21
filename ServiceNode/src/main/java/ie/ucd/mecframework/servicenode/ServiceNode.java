@@ -38,9 +38,11 @@ public class ServiceNode implements Runnable {
     private State state = State.STABLE;
 
     public ServiceNode(URI orchestrator, ServiceController serviceController, MigrationManager migrationManager,
-                       String label, long pingDelay) {
+                       String label, long pingDelay, double cpuLoadIncrease, boolean maxOutMemoryLoad) {
         this.wsClient = new ServiceNodeWsClient(orchestrator, this);
         this.metrics = new ServiceNodeMetrics(pingDelay);
+        metrics.setCpuLoadIncrease(cpuLoadIncrease);
+        metrics.setMaxOutMemoryLoad(maxOutMemoryLoad);
         this.serviceController = serviceController;
         this.migrationManager = migrationManager;
         this.label = label;

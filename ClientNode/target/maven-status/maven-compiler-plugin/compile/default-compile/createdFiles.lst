@@ -1,0 +1,4 @@
+ie\ucd\clientnode\ServiceInterface.class
+ie\ucd\clientnode\websocket\CommandLineWsClient.class
+ie\ucd\clientnode\websocket\PingServer.class
+ie\ucd\clientnode\Main.class

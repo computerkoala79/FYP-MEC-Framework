@@ -40,6 +40,7 @@ public class WebSocketPingClient extends WebSocketClient {
         result.finishTime = timeReceived;
         pingTask.submitPingResult(result);
         finishedPingLatch.countDown();
+        System.out.println("--------------------onMessage---------------");
     }
 
     @Override

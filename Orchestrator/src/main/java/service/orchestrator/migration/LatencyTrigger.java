@@ -1,5 +1,7 @@
 package service.orchestrator.migration;
 
+import com.google.gson.Gson;
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import service.orchestrator.clients.MobileClient;
@@ -8,6 +10,9 @@ import service.orchestrator.nodes.ServiceNode;
 import service.orchestrator.nodes.ServiceNodeRegistry;
 import service.orchestrator.properties.OrchestratorProperties;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +22,8 @@ import static java.util.Objects.nonNull;
 
 // separate Trigger and TriggerStrategy -> Latency, CPU, Memory, Storage, Combined (AND/OR)
 public class LatencyTrigger implements Trigger {
+
+    private FileWriter file;
     private static final Logger logger = LoggerFactory.getLogger(LatencyTrigger.class);
 
     private final Selector selector;
@@ -36,13 +43,22 @@ public class LatencyTrigger implements Trigger {
 
     @Override
     public void examine(Collection<ServiceNode> hostingNodes) {
+        JSONObject outjson = new JSONObject();
+        try {
+            file = new FileWriter("test_json_output_examine.json",true);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         OrchestratorProperties properties = OrchestratorProperties.get();
         logger.debug("{} nodes in examine", hostingNodes.size());
 
         for (ServiceNode node : hostingNodes) {
             logger.debug("examining {}", node.uuid);
+            outjson.put("uuid",node.uuid);
             for (Map.Entry<UUID, List<Long>> mcLatencyEntry : node.latencyEntries()) {
                 logger.debug("{} has {} latencies", mcLatencyEntry.getKey(), mcLatencyEntry.getValue().size());
+                outjson.put("latency",mcLatencyEntry.getValue().size());
 
                 double latencyAggregate = meanLatency(mcLatencyEntry.getValue());
                 if (latencyAggregate > properties.getMaxLatency()) {
@@ -52,6 +68,14 @@ public class LatencyTrigger implements Trigger {
                     logger.debug("{} has low latency {}", mcLatencyEntry.getKey(), latencyAggregate);
                 }
             }
+        }
+        try {
+            if(hostingNodes.size() > 0){
+                file.write(outjson.toJSONString());
+            }
+            file.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

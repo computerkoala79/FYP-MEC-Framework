@@ -7,6 +7,7 @@ import ie.ucd.mecframework.service.DockerController;
 import ie.ucd.mecframework.service.JarController;
 import ie.ucd.mecframework.service.ServiceController;
 import ie.ucd.mecframework.servicenode.ServiceNode;
+import ie.ucd.mecframework.servicenode.ServiceNodeArgs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -23,26 +24,49 @@ import java.nio.file.Paths;
 public class Main implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
-    // input parameters
-    @Parameters(index = "0", paramLabel = "orchestrator",
-            description = "The address of the orchestrator. Format ws://{ip address}:{port}")
     private URI serverUri;
-    @Parameters(index = "1", paramLabel = "file", description = "The name of the file storing the service you wish to run.")
     private File serviceFile;
-    @Parameters(index = "2", paramLabel = "state", description = "The name of the file storing the service state.")
     private File serviceState;
-    @Parameters(index = "3", paramLabel = "serviceAddress",
-            description = "The address any services will run out of on this machine {ip}:{port}")
     private URI serviceAddress;
-    @Parameters(index = "4", paramLabel = "nodeLabel", description = "An identifying name for this Service Node",
-            defaultValue = "some-service-node")
     private String nodeLabel;
-    @Parameters(index = "5", paramLabel = "latencyDelay", description = "An extra delay added on to the latency" +
-            " values collected by this node", defaultValue = "0")
     private int latencyDelay;
-    @Parameters(index = "6", paramLabel = "startService", description = "Whether or not to start the service on" +
-            " initializing this ServiceNode.", defaultValue = "true")
     private boolean startService;
+    private double cpuLoadIncrease;
+    private boolean maxOutMemoryLoad;
+
+    @Parameters(index = "0", paramLabel = "Service Node Args File",
+        description = "File containing necessary arguments to start a node.",
+        defaultValue = "ServiceNodeArgs.json")
+    private File argsFile;
+
+    private ServiceNodeArgs args;
+
+    // input parameters
+//    @Parameters(index = "0", paramLabel = "orchestrator",
+//            description = "The address of the orchestrator. Format ws://{ip address}:{port}")
+//    private URI serverUri;
+//    @Parameters(index = "1", paramLabel = "file", description = "The name of the file storing the service you wish to run.")
+//    private File serviceFile;
+//
+//    // jklos add a default value to the service state
+//    @Parameters(index = "2", paramLabel = "state", description = "The name of the file storing the service state.")
+//    private File serviceState;
+//    @Parameters(index = "3", paramLabel = "serviceAddress",
+//            description = "The address any services will run out of on this machine {ip}:{port}")
+//    private URI serviceAddress;
+//    @Parameters(index = "4", paramLabel = "nodeLabel", description = "An identifying name for this Service Node",
+//            defaultValue = "some-service-node")
+//    private String nodeLabel;
+//    @Parameters(index = "5", paramLabel = "latencyDelay", description = "An extra delay added on to the latency" +
+//            " values collected by this node", defaultValue = "0")
+//    private int latencyDelay;
+//    @Parameters(index = "6", paramLabel = "startService", description = "Whether or not to start the service on" +
+//            " initializing this ServiceNode.", defaultValue = "true")
+//    private boolean startService;
+//
+//    @Parameters(index = "7", paramLabel = "cpuLoadIncrease", description = "amount to add to cpu load of node.",
+//        defaultValue = "5")
+//    private double cpuLoadIncrease;
 
     public static void main(String[] args) {
         int exitCode = new CommandLine(new Main()).execute(args);
@@ -51,15 +75,30 @@ public class Main implements Runnable {
 
     @Override
     public void run() {
+        System.out.println("------------------ can read json file " + argsFile.canRead());
+        setServiceNodeArguments();
         removeStateIfExists();
         ServiceController serviceController = getServiceController();
         MigrationStrategy migrationStrategy = getMigrationStrategy(serviceController);
         ServiceNode serviceNode =
                 new ServiceNode(serverUri, serviceController, new MigrationManager(migrationStrategy),
-                        nodeLabel, latencyDelay
+                        nodeLabel, latencyDelay, cpuLoadIncrease, maxOutMemoryLoad
                 );
         serviceNode.run();  // run instead of start a Thread to stop the program from finishing immediately
         serviceController.stopService();
+    }
+
+    private void setServiceNodeArguments(){
+        args = new ServiceNodeArgs(argsFile);
+        serverUri = args.getServerURI();
+        serviceFile = args.getServiceFile();
+        serviceState = args.getServiceState();
+        serviceAddress = args.getServiceAddress();
+        nodeLabel = args.getNodeLabel();
+        latencyDelay = args.getLatencyDelay();
+        startService = args.isStartService();
+        cpuLoadIncrease = args.getCpuLoadIncrease();
+        maxOutMemoryLoad = args.isMaxOutMemoryLoad();
     }
 
     // Only for testing: removes the serviceFile's application state before launching the ServiceNode to ensure that

@@ -12,5 +12,6 @@
         <module>Core</module>
         <module>Orchestrator</module>
         <module>ServiceNode</module>
+        <module>ClientNode</module>
     </modules>
 </project>

@@ -1,5 +1,7 @@
 package ie.ucd.mecframework.messages.migration;
 
+import com.google.gson.JsonObject;
+import org.json.simple.JSONObject;
 import service.core.Message;
 
 import java.net.InetSocketAddress;
@@ -60,5 +62,14 @@ public class ServiceResponse extends Message {
                 ", transferServerAddresses=" + transferServerAddresses +
                 ", serviceName='" + serviceName + '\'' +
                 '}';
+    }
+
+    public JSONObject srJson() {
+        JSONObject job = new JSONObject();
+        job.put("targetUuid",targetUuid);
+        job.put("sourceUuid",sourceUuid);
+        job.put("transferServerAddresses",transferServerAddresses);
+        job.put("serviceName",serviceName);
+        return job;
     }
 }
