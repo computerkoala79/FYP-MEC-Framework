@@ -1,5 +1,6 @@
 package ie.ucd.mecframework.servicenode;
 
+import ie.ucd.mecframework.Main;
 import ie.ucd.mecframework.messages.migration.ServiceRequest;
 import ie.ucd.mecframework.messages.migration.ServiceResponse;
 import ie.ucd.mecframework.messages.service.StartServiceRequest;
@@ -10,10 +11,7 @@ import ie.ucd.mecframework.migration.MigrationManager;
 import ie.ucd.mecframework.service.ServiceController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import service.core.MigrationSuccess;
-import service.core.NodeClientLatencyRequest;
-import service.core.NodeInfo;
-import service.core.NodeInfoRequest;
+import service.core.*;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -37,8 +35,10 @@ public class ServiceNode implements Runnable {
     private URI serviceAddress;
     private State state = State.STABLE;
 
+    private Main.NodeType nodeType;
+
     public ServiceNode(URI orchestrator, ServiceController serviceController, MigrationManager migrationManager,
-                       String label, long pingDelay, double cpuLoadIncrease, boolean maxOutMemoryLoad) {
+                       String label, long pingDelay, double cpuLoadIncrease, boolean maxOutMemoryLoad, Main.NodeType nodeType) {
         this.wsClient = new ServiceNodeWsClient(orchestrator, this);
         this.metrics = new ServiceNodeMetrics(pingDelay);
         metrics.setCpuLoadIncrease(cpuLoadIncrease);
@@ -47,6 +47,7 @@ public class ServiceNode implements Runnable {
         this.migrationManager = migrationManager;
         this.label = label;
         serviceAddress = makeServiceAddress();
+        this.nodeType = nodeType;
     }
 
     private static URI makeServiceAddress() {
@@ -70,10 +71,24 @@ public class ServiceNode implements Runnable {
     }
 
     void sendHeartbeatResponse() {
-        NodeInfo nodeInfo = new NodeInfo(uuid, serviceController.isServiceRunning(), serviceAddress);
-        nodeInfo.setServiceInstalled(serviceController.serviceExists());
-        metrics.populateNodeInfo(nodeInfo);
-        wsClient.sendAsJson(nodeInfo);
+        logger.debug("Sending Heartbeat Response of type: " + nodeType + " ---------------- ");
+        switch (nodeType){
+            case CLIENT:
+                MobileClientInfo mobileClientInfo = new MobileClientInfo(uuid,new InetSocketAddress("127.0.0.1",8085));
+                wsClient.sendAsJson(mobileClientInfo);
+                break;
+            default:
+                NodeInfo nodeInfo = new NodeInfo(uuid, serviceController.isServiceRunning(), serviceAddress);
+                nodeInfo.setServiceInstalled(serviceController.serviceExists());
+                metrics.populateNodeInfo(nodeInfo);
+                wsClient.sendAsJson(nodeInfo);
+                break;
+        }
+
+//        NodeInfo nodeInfo = new NodeInfo(uuid, serviceController.isServiceRunning(), serviceAddress);
+//        nodeInfo.setServiceInstalled(serviceController.serviceExists());
+//        metrics.populateNodeInfo(nodeInfo);
+//        wsClient.sendAsJson(nodeInfo);
     }
 
     /**
@@ -136,4 +151,8 @@ public class ServiceNode implements Runnable {
     }
 
     public enum State {STABLE, TRANSFER_SERVER, TRANSFER_CLIENT}
+
+    public ServiceNodeMetrics getMetrics() {
+        return metrics;
+    }
 }

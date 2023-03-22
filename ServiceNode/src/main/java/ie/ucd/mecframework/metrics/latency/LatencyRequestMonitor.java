@@ -89,4 +89,17 @@ public class LatencyRequestMonitor implements Runnable {
         latencies.clear();
         return latencySnapshot;
     }
+
+    public synchronized Map<UUID, List<Long>> fakeLatencySnapshot(long pingDelay) {
+
+        List<Long> pings = new ArrayList<>();
+        for(int i = 0; i < 5; i++) pings.add(pingDelay);
+        Set<UUID> keys = latencies.keySet();
+        latencies.clear();
+        Map<UUID, List<Long>> fakeLatencies = new Hashtable<>();
+        for(UUID uuid : keys){
+            fakeLatencies.put(uuid,pings);
+        }
+        return fakeLatencies;
+    }
 }

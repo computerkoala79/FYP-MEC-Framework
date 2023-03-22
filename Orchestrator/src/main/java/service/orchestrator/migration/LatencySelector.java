@@ -5,6 +5,7 @@ import service.orchestrator.nodes.ServiceNode;
 
 import java.util.Collection;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static java.util.Comparator.naturalOrder;
 import static java.util.Objects.nonNull;
@@ -16,7 +17,32 @@ public class LatencySelector implements Selector {
                 .map(node -> new NodeLatencyPair(node, mobileClient.uuid))
                 .min(naturalOrder())
                 .orElse(null);
+
+
         return nonNull(nodeLatencyPair) ? nodeLatencyPair.node : null;
+    }
+
+    public ServiceNode mockSelect(Collection<ServiceNode> nodes, MobileClient mobileClient){
+        System.out.println("--------- inside mock latency selector - -------");
+        MockNodeLatencyPair yay = nodes.stream()
+                .map(MockNodeLatencyPair::new)
+                .min(naturalOrder())
+                .orElse(null);
+        return nonNull(yay) ? yay.node : null;
+    }
+
+    private static class MockNodeLatencyPair implements Comparable<MockNodeLatencyPair> {
+        private final double latency;
+        ServiceNode node;
+
+        MockNodeLatencyPair(ServiceNode node){
+            this.node = node;
+            this.latency = node.getAverageLatency();
+        }
+        @Override
+        public int compareTo(MockNodeLatencyPair other) {
+            return Double.compare(latency, other.latency);
+        }
     }
 
     private static class NodeLatencyPair implements Comparable<NodeLatencyPair> {

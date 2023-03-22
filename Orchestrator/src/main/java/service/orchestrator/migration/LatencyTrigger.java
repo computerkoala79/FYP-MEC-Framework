@@ -63,7 +63,9 @@ public class LatencyTrigger implements Trigger {
                 double latencyAggregate = meanLatency(mcLatencyEntry.getValue());
                 if (latencyAggregate > properties.getMaxLatency()) {
                     logger.debug("{} has high latency {}", mcLatencyEntry.getKey(), latencyAggregate);
-                    findBetterServiceNodeForClient(mcLatencyEntry.getKey(), node);
+//                    findBetterServiceNodeForClient(mcLatencyEntry.getKey(), node);
+//                    triggerMigration(node);
+                    mockTriggerMigration(node);
                 } else {
                     logger.debug("{} has low latency {}", mcLatencyEntry.getKey(), latencyAggregate);
                 }
@@ -76,6 +78,22 @@ public class LatencyTrigger implements Trigger {
             file.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void mockTriggerMigration(ServiceNode currentServiceNode){
+        Collection<ServiceNode> allServiceNodes = ServiceNodeRegistry.get().getServiceNodes();
+        ServiceNode migrationTarget = ((LatencySelector)selector).mockSelect(allServiceNodes, null);
+        if (nonNull(migrationTarget)) {
+            migrator.migrate(currentServiceNode, migrationTarget);
+        }
+    }
+
+    private void triggerMigration(ServiceNode currentServiceNode) {
+        Collection<ServiceNode> allServiceNodes = ServiceNodeRegistry.get().getServiceNodes();
+        ServiceNode migrationTarget = selector.select(allServiceNodes, null);
+        if (nonNull(migrationTarget)) {
+            migrator.migrate(currentServiceNode, migrationTarget);
         }
     }
 

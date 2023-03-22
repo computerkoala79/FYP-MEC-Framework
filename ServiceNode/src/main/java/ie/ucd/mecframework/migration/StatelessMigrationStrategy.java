@@ -31,6 +31,7 @@ public class StatelessMigrationStrategy implements MigrationStrategy {
 
     @Override
     public List<InetSocketAddress> migrateService() {
+        logger.debug(" -- --- - - --- inside migrate service method");
         controller.stopService();
         launchTransferServer(nodeProperties.getActualTransferServerPortNumber1());
         return List.of(

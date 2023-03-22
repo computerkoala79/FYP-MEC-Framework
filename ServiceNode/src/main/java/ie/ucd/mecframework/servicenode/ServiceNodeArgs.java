@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import ie.ucd.mecframework.Main;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import com.google.gson.Gson;
@@ -24,6 +25,8 @@ public class ServiceNodeArgs {
     private double cpuLoadIncrease;
     private boolean maxOutMemoryLoad;
 
+    private Main.NodeType nodeType;
+
     public ServiceNodeArgs(File argsFile){
         JSONParser jsonParser = new JSONParser();
         try {
@@ -32,6 +35,9 @@ public class ServiceNodeArgs {
             JSONObject args = (JSONObject) jsonParser.parse(reader);
             System.out.println("------------------ JSON Object args is empty " + args.isEmpty());
             System.out.println("------------------ Server URI is " + args.get("orhestrator"));
+            int typeSelector = Integer.parseInt(args.get("nodeType").toString());
+
+            System.out.println(" **** ----- Node Type number is " + typeSelector);
             serverUri = new URI(args.get("orhestrator").toString());
             serviceFile = new File(args.get("serviceFile").toString());
             serviceState = new File(args.get("serviceState").toString());
@@ -41,6 +47,15 @@ public class ServiceNodeArgs {
             startService = new Boolean(args.get("startService").toString());
             cpuLoadIncrease = new Double(args.get("cpuLoadIncrease").toString());
             maxOutMemoryLoad = new Boolean(args.get("maxOutMemoryLoad").toString());
+            if(typeSelector == 2){
+                nodeType = Main.NodeType.CLIENT;
+                System.out.println(" ***(*(*((*((*(*  I'm a Client **(*()*))*))**)) ");
+            } else if(typeSelector == 3){
+                nodeType = Main.NodeType.CLOUD;
+            } else {
+                nodeType = Main.NodeType.SERVICE;
+                System.out.println(" ***(*(*((*((*(*  I'm a Service **(*()*))*))**)) ");
+            }
         } catch (IOException | ParseException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
@@ -62,4 +77,7 @@ public class ServiceNodeArgs {
 
     public double getCpuLoadIncrease() { return cpuLoadIncrease; }
     public boolean isMaxOutMemoryLoad() { return maxOutMemoryLoad; }
+
+    public Main.NodeType getNodeType() { return nodeType; }
+
 }

@@ -118,13 +118,29 @@ public class ServiceNodeMetrics {
         populateMemoryLoad(nodeInfo);
         populateStorageLoad(nodeInfo);
 
-        Map<UUID, List<Long>> delayedLatencies = latenciesWithDelay(latencyMonitor.takeLatencySnapshot());
+//        Map<UUID, List<Long>> delayedLatencies = latenciesWithDelay(latencyMonitor.takeLatencySnapshot());
+//        nodeInfo.setLatencies(delayedLatencies);
 
-        nodeInfo.setLatencies(delayedLatencies);
+        System.out.println("---------------------------------");
+        System.out.println(" Client UUID : "+ getClientID());
+
+        Map<UUID,List<Long>> testing = new Hashtable<>();
+        List<Long> testLatencies = new ArrayList<>();
+        for(int i = 0;i < 5; i++) {
+            double jittery = Math.floor(Math.random() *(500 - 50 + 1) + 50) + pingDelay;
+            testLatencies.add((long) jittery);
+        }
+        testing.put(UUID.randomUUID(),testLatencies);
+
+        nodeInfo.setLatencies(testing);
     }
 
     private Map<UUID, List<Long>> latenciesWithDelay(Map<UUID, List<Long>> latencies) {
         Map<UUID, List<Long>> delayedLatencies = new HashMap<>();
+
+        Set<UUID> keys = latencies.keySet();
+        System.out.println("---------------------------------");
+        System.out.println(" Latencies is empty "+ keys.isEmpty());
 
         for (Map.Entry<UUID, List<Long>> entry : latencies.entrySet()) {
             List<Long> delayed = entry.getValue().stream()
@@ -132,6 +148,8 @@ public class ServiceNodeMetrics {
                     .collect(toList());
             delayedLatencies.put(entry.getKey(), delayed);
         }
+        System.out.println("---------------------------------");
+        System.out.println(" Client UUID : "+ getClientID());
         System.out.println("---------------------------------");
         System.out.println(delayedLatencies.toString());
         System.out.println("---------------------------------");
@@ -142,12 +160,27 @@ public class ServiceNodeMetrics {
             System.out.println("---------------------------------");
             List<Long> delayList = new ArrayList<>();
             delayList.add(pingDelay);
+
             delayedLatencies.put(UUID.randomUUID(),delayList);
         }
-        return Collections.unmodifiableMap(delayedLatencies);
+//        return Collections.unmodifiableMap(delayedLatencies);
+        Map<UUID,List<Long>> testing = new Hashtable<>();
+        List<Long> testLatencies = new ArrayList<>();
+        for(int i = 0;i < 5; i++) testLatencies.add(pingDelay);
+        testing.put(getClientID(),testLatencies);
+        return Collections.unmodifiableMap(testing);
     }
+
+    private UUID clientID;
+
+    public UUID getClientID() {return clientID;}
+
+    public void setClientID(UUID clientID) {this.clientID = clientID;}
 
     public void registerLatencyRequest(NodeClientLatencyRequest request) {
         latencyRequestor.registerRequest(request);
+        System.out.println("---------------------------------");
+        System.out.println(" Client UUID inside register: "+request.getClientId());
+        setClientID(request.getClientId());
     }
 }

@@ -145,6 +145,7 @@ public class Orchestrator extends WebSocketServer implements Migrator {
                 logger.error("Message received with unrecognised type: {}", messageObj.getType());
                 break;
         }
+        logger.debug(" -- - --- --  Message Type " + messageObj.getType() + " --- ----");
     }
 
     // todo take the port number of the node's serviceAddress and the IP address of the node itself

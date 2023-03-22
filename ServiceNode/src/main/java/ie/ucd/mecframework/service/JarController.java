@@ -79,6 +79,7 @@ public class JarController implements ServiceController {
 
     @Override
     public boolean isServiceRunning() {
+        logger.debug("--------    Service is Running: " + isServiceRunning.get());
         return isServiceRunning.get();
     }
 

@@ -34,6 +34,8 @@ public class Main implements Runnable {
     private double cpuLoadIncrease;
     private boolean maxOutMemoryLoad;
 
+    private NodeType nodeType;
+
     @Parameters(index = "0", paramLabel = "Service Node Args File",
         description = "File containing necessary arguments to start a node.",
         defaultValue = "ServiceNodeArgs.json")
@@ -82,7 +84,7 @@ public class Main implements Runnable {
         MigrationStrategy migrationStrategy = getMigrationStrategy(serviceController);
         ServiceNode serviceNode =
                 new ServiceNode(serverUri, serviceController, new MigrationManager(migrationStrategy),
-                        nodeLabel, latencyDelay, cpuLoadIncrease, maxOutMemoryLoad
+                        nodeLabel, latencyDelay, cpuLoadIncrease, maxOutMemoryLoad, nodeType
                 );
         serviceNode.run();  // run instead of start a Thread to stop the program from finishing immediately
         serviceController.stopService();
@@ -99,6 +101,7 @@ public class Main implements Runnable {
         startService = args.isStartService();
         cpuLoadIncrease = args.getCpuLoadIncrease();
         maxOutMemoryLoad = args.isMaxOutMemoryLoad();
+        nodeType = args.getNodeType();
     }
 
     // Only for testing: removes the serviceFile's application state before launching the ServiceNode to ensure that
@@ -158,5 +161,11 @@ public class Main implements Runnable {
         } catch (IOException e) {
             throw new RuntimeException("getCanonicalPath error", e);
         }
+    }
+
+    public enum NodeType{
+        SERVICE,
+        CLOUD,
+        CLIENT
     }
 }

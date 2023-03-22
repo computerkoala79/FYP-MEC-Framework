@@ -35,6 +35,8 @@ public class ServiceNode {
     private Map<UUID, List<Long>> mobileClientLatencies = new Hashtable<>();
     private AtomicReference<State> stateAtomRef = new AtomicReference<>(State.STABLE);
 
+    private double averageLatency;
+
     public ServiceNode(UUID uuid, WebSocket webSocket) {
         this.uuid = uuid;
         this.webSocket = webSocket;
@@ -63,6 +65,7 @@ public class ServiceNode {
         storage.addAll(nodeInfo.getStorage());
         mainMemory.addAll(nodeInfo.getMainMemory());
         addAllLatencies(nodeInfo.getLatencies());
+        this.averageLatency = nodeInfo.getAverageLatency();
     }
 
     private void recordOtherFields(NodeInfo nodeInfo) {
@@ -104,6 +107,8 @@ public class ServiceNode {
         stateAtomRef.set(state);
     }
 
+
+
     private double getMean(Collection<? extends Number> numbers) {
         return numbers.stream()
                 .map(Number::doubleValue)
@@ -111,6 +116,10 @@ public class ServiceNode {
                 .average()
                 .orElse(0)
                 ;
+    }
+
+    public double getAverageLatency(){
+        return averageLatency;
     }
 
     public boolean isServiceRunning() {
@@ -166,5 +175,9 @@ public class ServiceNode {
 
     public enum State {
         STABLE, MIGRATING
+    }
+
+    public Map<UUID, List<Long>> getMobileClientLatencies() {
+        return mobileClientLatencies;
     }
 }

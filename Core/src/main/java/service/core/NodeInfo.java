@@ -4,10 +4,7 @@ import org.java_websocket.WebSocket;
 
 import java.net.InetAddress;
 import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 // todo remove unnecessary fields
 public class NodeInfo extends Message {
@@ -52,6 +49,20 @@ public class NodeInfo extends Message {
 
     public void setLatencies(Map<UUID, List<Long>> latencies) {
         this.latencies = latencies;
+    }
+
+    public double getAverageLatency(){
+        Collection<List<Long>> latencyCollection = latencies.values();
+        Object[] latencyArray = latencyCollection.toArray();
+        double count = latencyArray.length;
+        double totalLatency = 0;
+        for(Object latency : latencyArray){
+            if(latency instanceof Long){
+                Long longlat = (Long) latency;
+                totalLatency += longlat;
+            }
+        }
+        return totalLatency / count;
     }
 
     public WebSocket getWebSocket() {

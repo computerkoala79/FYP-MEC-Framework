@@ -1,15 +1,19 @@
 package service.orchestrator;
 
 import com.google.gson.Gson;
+import org.java_websocket.WebSocket;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Parameters;
+import service.orchestrator.clients.MobileClient;
 import service.orchestrator.migration.*;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -53,9 +57,10 @@ public class Main implements Runnable {
     }
 
     private Selector getSelector() {
+        return new JitterSelector();
 //        return new SimpleSelector();
 //        return new LatencySelector();
-        return new CpuSelector();
+//        return new CpuSelector();
 //        return new MainMemorySelector();
 //        return new MainMemorySelector();
 //        return new HighAvailabilitySelector(new LatencySelector());
@@ -63,8 +68,9 @@ public class Main implements Runnable {
     }
 
     private Trigger getTrigger(Selector selector, Orchestrator orchestrator) {
+        return new JitterTrigger(selector,orchestrator);
 //        return new LatencyTrigger(selector, orchestrator);
-        return new CpuTrigger(selector, orchestrator);
+//        return new CpuTrigger(selector, orchestrator);
 //        return new MainMemoryTrigger(selector, orchestrator);
 
 //        DeferredMigrator deferredMigrator = new DeferredMigrator();

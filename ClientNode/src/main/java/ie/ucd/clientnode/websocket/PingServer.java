@@ -38,5 +38,6 @@ public class PingServer extends WebSocketServer {
 
     @Override
     public void onStart() {
+        logger.debug(" on start ");
     }
 }
