@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import service.orchestrator.clients.MobileClient;
 import service.orchestrator.nodes.ServiceNode;
+import service.orchestrator.properties.OrchestratorProperties;
 
 import java.util.*;
 
@@ -16,6 +17,7 @@ public class JitterSelector implements Selector{
         for(ServiceNode node : nodes){
             Map<UUID, List<Long>> latencies = node.getMobileClientLatencies();
             long hardCodedMaxJitter = 500;
+            hardCodedMaxJitter = OrchestratorProperties.get().getMaxJitter();
             Collection<List<Long>> l = latencies.values();
             for(List<Long> list : l){
                 list.sort(Comparator.naturalOrder());
@@ -35,6 +37,7 @@ public class JitterSelector implements Selector{
                 long hardCodedMaxJitter = 500;
                 Collection<List<Long>> l = latencies.values();
                 for(List<Long> list : l){
+                    // sort the list then subtract the highest from the lowest value to get the max difference
                     list.sort(Comparator.naturalOrder());
                     long maxJitter = list.get(list.size() - 1) - list.get(0);
                     logger.debug("-=-=-=- {} has Max Jitter of {} -=-=-=-=",node.uuid,maxJitter);

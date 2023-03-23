@@ -3,6 +3,8 @@ package service.orchestrator.properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.MissingResourceException;
@@ -15,13 +17,15 @@ public class OrchestratorProperties {
     private static final String FILENAME = "orchestrator.properties";
     private static final String DEFAULT_DOUBLE = Double.valueOf(1.0).toString();
     private static OrchestratorProperties instance;
-    private Properties properties;
+    private static Properties properties;
 
     private OrchestratorProperties() {
         properties = new Properties();
-
+        logger.debug("-=-=- Making the orch props -=-=-==-=");
         try {
-            properties.load(getFileStream());
+            FileReader reader = new FileReader(FILENAME);
+            properties.load(reader);
+//            properties.load(getFileStream());
         } catch (IOException ioe) {
             logger.error("Couldn't load " + FILENAME, ioe);
             throw new MissingResourceException(
@@ -40,8 +44,21 @@ public class OrchestratorProperties {
     public static OrchestratorProperties get() {
         if (isNull(instance)) {
             instance = new OrchestratorProperties();
+            return instance;
         }
+        updateProperties();
         return instance;
+    }
+
+    public static void updateProperties(){
+        try {
+            FileReader reader = new FileReader(FILENAME);
+            properties.load(reader);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private InputStream getFileStream() {
@@ -72,5 +89,11 @@ public class OrchestratorProperties {
     public long getHeartbeatPeriod() {
         String heartbeatFrequency = properties.getProperty("orchestrator.heartbeat.frequency", "10");
         return Long.parseLong(heartbeatFrequency);
+    }
+
+    public int getMaxJitter(){
+        final String MAX_VALUE_STRING = Integer.toString(Integer.MAX_VALUE);
+        String maxJitter = properties.getProperty("application.limit.max-jitter", MAX_VALUE_STRING);
+        return Integer.parseInt(maxJitter);
     }
 }

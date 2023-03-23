@@ -22,13 +22,25 @@ public class LatencySelector implements Selector {
         return nonNull(nodeLatencyPair) ? nodeLatencyPair.node : null;
     }
 
-    public ServiceNode mockSelect(Collection<ServiceNode> nodes, MobileClient mobileClient){
+    public ServiceNode mockSelect(Collection<ServiceNode> nodes, MobileClient mobileClient, ServiceNode badNode){
         System.out.println("--------- inside mock latency selector - -------");
-        MockNodeLatencyPair yay = nodes.stream()
-                .map(MockNodeLatencyPair::new)
-                .min(naturalOrder())
-                .orElse(null);
-        return nonNull(yay) ? yay.node : null;
+        double lowestAvgLatency = 100000;
+        ServiceNode returnNode = null;
+        for(ServiceNode node : nodes){
+            if(!node.equals(badNode)){
+                if(node.getAverageLatency() < lowestAvgLatency) {
+                    lowestAvgLatency = node.getAverageLatency();
+                    returnNode = node;
+                }
+            }
+        }
+        return returnNode;
+
+//        MockNodeLatencyPair yay = nodes.stream()
+//                .map(MockNodeLatencyPair::new)
+//                .min(naturalOrder())
+//                .orElse(null);
+//        return nonNull(yay) ? yay.node : null;
     }
 
     private static class MockNodeLatencyPair implements Comparable<MockNodeLatencyPair> {

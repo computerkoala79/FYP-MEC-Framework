@@ -25,13 +25,14 @@ public class ServiceNodeMetrics {
     private final OperatingSystem os = nodeSystem.getOperatingSystem();
     private final LatencyRequestMonitor latencyMonitor = new LatencyRequestMonitor();
     private final LatencyRequestor latencyRequestor = new LatencyRequestor(latencyMonitor);
-    private final long pingDelay;
+//    private final long pingDelay;
 
     // metric values
     private final List<Double> cpuLoad = new ArrayList<>();
     private final List<Double> memoryLoad = new ArrayList<>();
     private final List<Long> mainMemory = new ArrayList<>();
     private final List<Long> storage = new ArrayList<>();
+    private final List<Long> mockLatencies;
     private long[] cpuTicks = hal.getProcessor().getSystemCpuLoadTicks();
 
     private double cpuLoadIncrease;
@@ -44,8 +45,9 @@ public class ServiceNodeMetrics {
 
     public void setMaxOutMemoryLoad(boolean maxOutMemoryLoad) { this.maxOutMemoryLoad = maxOutMemoryLoad;}
 
-    public ServiceNodeMetrics(long pingDelay) {
-        this.pingDelay = pingDelay;
+    public ServiceNodeMetrics(List<Long> mockLatencies) {
+//        this.pingDelay = pingDelay;
+        this.mockLatencies = mockLatencies;
 
         scheduleService.scheduleAtFixedRate(() -> {
             // CPU
@@ -125,12 +127,13 @@ public class ServiceNodeMetrics {
         System.out.println(" Client UUID : "+ getClientID());
 
         Map<UUID,List<Long>> testing = new Hashtable<>();
-        List<Long> testLatencies = new ArrayList<>();
-        for(int i = 0;i < 5; i++) {
-            double jittery = Math.floor(Math.random() *(500 - 50 + 1) + 50) + pingDelay;
-            testLatencies.add((long) jittery);
-        }
-        testing.put(UUID.randomUUID(),testLatencies);
+//        List<Long> testLatencies = new ArrayList<>();
+//        for(int i = 0;i < 5; i++) {
+//            double jittery = Math.floor(Math.random() *(500 - 50 + 1) + 50) + pingDelay;
+//            testLatencies.add((long) jittery);
+//        }
+        // the random UUID is designed for testing purposes. It should be replaced with real client UUIDs in practice
+        testing.put(UUID.randomUUID(),mockLatencies);
 
         nodeInfo.setLatencies(testing);
     }
@@ -144,7 +147,7 @@ public class ServiceNodeMetrics {
 
         for (Map.Entry<UUID, List<Long>> entry : latencies.entrySet()) {
             List<Long> delayed = entry.getValue().stream()
-                    .map(latency -> latency + pingDelay)
+                    .map(latency -> latency)
                     .collect(toList());
             delayedLatencies.put(entry.getKey(), delayed);
         }
@@ -159,14 +162,14 @@ public class ServiceNodeMetrics {
             System.out.println(" Delayed Latencies is empty. ");
             System.out.println("---------------------------------");
             List<Long> delayList = new ArrayList<>();
-            delayList.add(pingDelay);
+
 
             delayedLatencies.put(UUID.randomUUID(),delayList);
         }
 //        return Collections.unmodifiableMap(delayedLatencies);
         Map<UUID,List<Long>> testing = new Hashtable<>();
         List<Long> testLatencies = new ArrayList<>();
-        for(int i = 0;i < 5; i++) testLatencies.add(pingDelay);
+//        for(int i = 0;i < 5; i++) testLatencies.add(pingDelay);
         testing.put(getClientID(),testLatencies);
         return Collections.unmodifiableMap(testing);
     }

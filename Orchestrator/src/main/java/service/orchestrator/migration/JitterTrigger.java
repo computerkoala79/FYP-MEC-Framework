@@ -69,6 +69,7 @@ public class JitterTrigger implements Trigger{
     private boolean hasTheJitters(ServiceNode node){
         Map<UUID, List<Long>> latencies = node.getMobileClientLatencies();
         long hardCodedMaxJitter = 300;
+        hardCodedMaxJitter = OrchestratorProperties.get().getMaxJitter();
         Collection<List<Long>> l = latencies.values();
         for(List<Long> list : l){
             list.sort(Comparator.naturalOrder());

@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings("unused")
 @CommandLine.Command(name = "ServiceNode Driver", mixinStandardHelpOptions = true, version = "0.1")
@@ -30,6 +32,7 @@ public class Main implements Runnable {
     private URI serviceAddress;
     private String nodeLabel;
     private int latencyDelay;
+    private List<Long> latencies = new ArrayList<>();
     private boolean startService;
     private double cpuLoadIncrease;
     private boolean maxOutMemoryLoad;
@@ -84,7 +87,7 @@ public class Main implements Runnable {
         MigrationStrategy migrationStrategy = getMigrationStrategy(serviceController);
         ServiceNode serviceNode =
                 new ServiceNode(serverUri, serviceController, new MigrationManager(migrationStrategy),
-                        nodeLabel, latencyDelay, cpuLoadIncrease, maxOutMemoryLoad, nodeType
+                        nodeLabel, latencies, cpuLoadIncrease, maxOutMemoryLoad, nodeType
                 );
         serviceNode.run();  // run instead of start a Thread to stop the program from finishing immediately
         serviceController.stopService();
@@ -97,7 +100,8 @@ public class Main implements Runnable {
         serviceState = args.getServiceState();
         serviceAddress = args.getServiceAddress();
         nodeLabel = args.getNodeLabel();
-        latencyDelay = args.getLatencyDelay();
+//        latencyDelay = args.getLatencyDelay();
+        latencies = args.getLatencies();
         startService = args.isStartService();
         cpuLoadIncrease = args.getCpuLoadIncrease();
         maxOutMemoryLoad = args.isMaxOutMemoryLoad();

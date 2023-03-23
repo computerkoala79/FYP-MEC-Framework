@@ -83,7 +83,7 @@ public class LatencyTrigger implements Trigger {
 
     private void mockTriggerMigration(ServiceNode currentServiceNode){
         Collection<ServiceNode> allServiceNodes = ServiceNodeRegistry.get().getServiceNodes();
-        ServiceNode migrationTarget = ((LatencySelector)selector).mockSelect(allServiceNodes, null);
+        ServiceNode migrationTarget = ((LatencySelector)selector).mockSelect(allServiceNodes, null,currentServiceNode);
         if (nonNull(migrationTarget)) {
             migrator.migrate(currentServiceNode, migrationTarget);
         }

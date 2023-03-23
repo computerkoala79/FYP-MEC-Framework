@@ -38,9 +38,9 @@ public class ServiceNode implements Runnable {
     private Main.NodeType nodeType;
 
     public ServiceNode(URI orchestrator, ServiceController serviceController, MigrationManager migrationManager,
-                       String label, long pingDelay, double cpuLoadIncrease, boolean maxOutMemoryLoad, Main.NodeType nodeType) {
+                       String label, List<Long> mockLatencies, double cpuLoadIncrease, boolean maxOutMemoryLoad, Main.NodeType nodeType) {
         this.wsClient = new ServiceNodeWsClient(orchestrator, this);
-        this.metrics = new ServiceNodeMetrics(pingDelay);
+        this.metrics = new ServiceNodeMetrics(mockLatencies);
         metrics.setCpuLoadIncrease(cpuLoadIncrease);
         metrics.setMaxOutMemoryLoad(maxOutMemoryLoad);
         this.serviceController = serviceController;

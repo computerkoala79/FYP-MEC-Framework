@@ -6,7 +6,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.google.gson.stream.JsonToken;
 import ie.ucd.mecframework.Main;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -21,6 +24,7 @@ public class ServiceNodeArgs {
     private URI serviceAddress;
     private String nodeLabel;
     private int latencyDelay;
+    private List<Long> latencies = new ArrayList<>();
     private boolean startService;
     private double cpuLoadIncrease;
     private boolean maxOutMemoryLoad;
@@ -43,7 +47,11 @@ public class ServiceNodeArgs {
             serviceState = new File(args.get("serviceState").toString());
             serviceAddress = new URI(args.get("serviceAddress").toString());
             nodeLabel = args.get("nodeLabel").toString();
-            latencyDelay = new Integer(args.get("latencyDelay").toString());
+//            latencyDelay = new Integer(args.get("latencyDelay").toString());
+            JSONArray jray = (JSONArray) args.get("latencyDelay");
+            for(int i = 0; i < jray.size(); i++){
+                latencies.add(new Long(jray.get(i).toString()));
+            }
             startService = new Boolean(args.get("startService").toString());
             cpuLoadIncrease = new Double(args.get("cpuLoadIncrease").toString());
             maxOutMemoryLoad = new Boolean(args.get("maxOutMemoryLoad").toString());
@@ -72,6 +80,8 @@ public class ServiceNodeArgs {
     public String getNodeLabel() { return nodeLabel; }
 
     public int getLatencyDelay() { return latencyDelay; }
+
+    public List<Long> getLatencies() {return latencies;}
 
     public boolean isStartService() { return startService; }
 

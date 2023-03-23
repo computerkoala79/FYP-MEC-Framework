@@ -1,19 +1,18 @@
 package service.orchestrator;
 
-import com.google.gson.Gson;
-import org.java_websocket.WebSocket;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Parameters;
-import service.orchestrator.clients.MobileClient;
 import service.orchestrator.migration.*;
+import service.orchestrator.properties.TriggerType;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.UUID;
+import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -23,8 +22,15 @@ import java.util.concurrent.TimeUnit;
 public class Main implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
     private static final ScheduledExecutorService scheduledService = Executors.newSingleThreadScheduledExecutor();
+    private Properties properties;
+    public Properties getProperties() { return properties; }
+    public void setProperties(Properties properties) { this.properties = properties; }
+
     @Parameters(index = "0", paramLabel = "port", description = "The port the orchestrator should run on")
     private int port;
+
+    @Parameters(index = "1", paramLabel = "triggerType", description = "Active Trigger")
+
 
 
     public static void main(String[] args) {
@@ -48,16 +54,40 @@ public class Main implements Runnable {
 
 
         logger.info("Starting Orchestrator");
-        Selector selector = getSelector();
+        Properties p = new Properties();
+
+        try {
+            FileReader reader = new FileReader("orchestrator.properties");
+            p.load(reader);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        logger.debug("-=-=-=-=-=-=-= Trigger Type " + p.getProperty("application.trigger.type").toString() + "-=-=-=-=-==-");
+        TriggerType triggerType = TriggerType.valueOf(p.getProperty("application.trigger.type"));
+        Selector selector = getSelector(triggerType);
+
+        port = Integer.parseInt(p.getProperty("orchestrator.port"));
+        System.out.println("Orch Port: " + port);
         Orchestrator orchestrator = new Orchestrator(port, selector);
-        Trigger trigger = getTrigger(selector, orchestrator);
+        Trigger trigger = getTrigger(triggerType,selector, orchestrator);
         scheduledService.scheduleAtFixedRate(trigger, 5, 5, TimeUnit.SECONDS);
 
         orchestrator.run();
     }
 
-    private Selector getSelector() {
-        return new JitterSelector();
+    private Selector getSelector(TriggerType triggerType) {
+        switch (triggerType){
+            case LATENCY: return new LatencySelector();
+            case JITTER: return new JitterSelector();
+            case CPU: return new CpuSelector();
+            case MEMORY: return new MainMemorySelector();
+            case COMBINED: return new CombinedSelector(new LatencySelector(), new CpuSelector());
+            default: return new LatencySelector();
+        }
+//        return new JitterSelector();
 //        return new SimpleSelector();
 //        return new LatencySelector();
 //        return new CpuSelector();
@@ -67,8 +97,15 @@ public class Main implements Runnable {
 //        return new CombinedSelector(new LatencySelector(), new CpuSelector());
     }
 
-    private Trigger getTrigger(Selector selector, Orchestrator orchestrator) {
-        return new JitterTrigger(selector,orchestrator);
+    private Trigger getTrigger(TriggerType triggerType, Selector selector, Orchestrator orchestrator) {
+        switch (triggerType){
+            case LATENCY: return new LatencyTrigger(selector, orchestrator);
+            case JITTER: return new JitterTrigger(selector,orchestrator);
+            case CPU: return new CpuTrigger(selector, orchestrator);
+            case MEMORY: return new MainMemoryTrigger(selector, orchestrator);
+            default: return new LatencyTrigger(selector, orchestrator);
+        }
+//        return new JitterTrigger(selector,orchestrator);
 //        return new LatencyTrigger(selector, orchestrator);
 //        return new CpuTrigger(selector, orchestrator);
 //        return new MainMemoryTrigger(selector, orchestrator);

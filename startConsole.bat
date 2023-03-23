@@ -1,0 +1,1 @@
+start cmd /k "java -cp ..\FYP-MEC-FX-Console\target\FYP-MEC-FX-Console-1.0-SNAPSHOT.jar org.example.Main"
