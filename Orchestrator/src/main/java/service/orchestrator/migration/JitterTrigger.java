@@ -85,7 +85,7 @@ public class JitterTrigger implements Trigger{
     private void mockTriggerMigration(ServiceNode currentServiceNode){
         Collection<ServiceNode> allServiceNodes = ServiceNodeRegistry.get().getServiceNodes();
 //        ServiceNode migrationTarget = selector.select(allServiceNodes,null);
-        ServiceNode migrationTarget = ((JitterSelector)selector).mockSelect(allServiceNodes,null,currentServiceNode.uuid);
+        ServiceNode migrationTarget = ((JitterSelector)selector).mockSelect(allServiceNodes,null,currentServiceNode);
         if (nonNull(migrationTarget)) {
             migrator.migrate(currentServiceNode, migrationTarget);
         }

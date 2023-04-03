@@ -35,6 +35,11 @@ public class HighAvailabilitySelector implements Selector {
         }
     }
 
+    @Override
+    public ServiceNode mockSelect(Collection<ServiceNode> nodes, MobileClient mobileClient, ServiceNode badNode) {
+        return null;
+    }
+
     private Collection<ServiceNode> nodesWithServiceInstalled(Collection<ServiceNode> nodes) {
         return nodes.stream()
                 .filter(node -> node.serviceInstalled)

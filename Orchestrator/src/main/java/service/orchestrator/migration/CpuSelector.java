@@ -6,6 +6,7 @@ import service.orchestrator.nodes.ServiceNode;
 import java.util.Collection;
 
 import static java.util.Comparator.naturalOrder;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 public class CpuSelector implements Selector {
@@ -16,6 +17,13 @@ public class CpuSelector implements Selector {
                 .min(naturalOrder())
                 .orElse(null);
         return nonNull(nodeCpuPair) ? nodeCpuPair.node : null;
+    }
+
+    @Override
+    public ServiceNode mockSelect(Collection<ServiceNode> nodes, MobileClient mobileClient, ServiceNode badNode) {
+        ServiceNode serviceNode = select(nodes,mobileClient);
+        if(serviceNode.equals(badNode)) return null;
+        return serviceNode;
     }
 
     private static class NodeCpuPair implements Comparable<NodeCpuPair> {

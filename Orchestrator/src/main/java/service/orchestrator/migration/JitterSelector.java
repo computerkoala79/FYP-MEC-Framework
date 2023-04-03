@@ -29,10 +29,10 @@ public class JitterSelector implements Selector{
         return nonJitteryNode;
     }
 
-    public ServiceNode mockSelect(Collection<ServiceNode> nodes, MobileClient mobileClient, UUID currentUUID){
-        ServiceNode nonJitteryNode = null;
+    public ServiceNode mockSelect(Collection<ServiceNode> nodes, MobileClient mobileClient, ServiceNode badNode){
+        ServiceNode returnNode = null;
         for(ServiceNode node : nodes){
-            if(node.uuid != currentUUID){
+            if(!node.equals(badNode)){
                 Map<UUID, List<Long>> latencies = node.getMobileClientLatencies();
                 long hardCodedMaxJitter = 500;
                 Collection<List<Long>> l = latencies.values();
@@ -41,10 +41,30 @@ public class JitterSelector implements Selector{
                     list.sort(Comparator.naturalOrder());
                     long maxJitter = list.get(list.size() - 1) - list.get(0);
                     logger.debug("-=-=-=- {} has Max Jitter of {} -=-=-=-=",node.uuid,maxJitter);
-                    if(hardCodedMaxJitter > maxJitter) nonJitteryNode = node;
+                    if(hardCodedMaxJitter > maxJitter) returnNode = node;
                 }
             }
         }
-        return nonJitteryNode;
+        return returnNode;
     }
+
+
+//    public ServiceNode mockSelect(Collection<ServiceNode> nodes, MobileClient mobileClient, UUID currentUUID){
+//        ServiceNode nonJitteryNode = null;
+//        for(ServiceNode node : nodes){
+//            if(node.uuid != currentUUID){
+//                Map<UUID, List<Long>> latencies = node.getMobileClientLatencies();
+//                long hardCodedMaxJitter = 500;
+//                Collection<List<Long>> l = latencies.values();
+//                for(List<Long> list : l){
+//                    // sort the list then subtract the highest from the lowest value to get the max difference
+//                    list.sort(Comparator.naturalOrder());
+//                    long maxJitter = list.get(list.size() - 1) - list.get(0);
+//                    logger.debug("-=-=-=- {} has Max Jitter of {} -=-=-=-=",node.uuid,maxJitter);
+//                    if(hardCodedMaxJitter > maxJitter) nonJitteryNode = node;
+//                }
+//            }
+//        }
+//        return nonJitteryNode;
+//    }
 }

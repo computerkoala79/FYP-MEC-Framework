@@ -16,4 +16,5 @@ public interface Selector {
      * or null if there is no such {@code ServiceNode}
      */
     ServiceNode select(Collection<ServiceNode> nodes, MobileClient mobileClient);
+    ServiceNode mockSelect(Collection<ServiceNode> nodes, MobileClient mobileClient, ServiceNode badNode);
 }

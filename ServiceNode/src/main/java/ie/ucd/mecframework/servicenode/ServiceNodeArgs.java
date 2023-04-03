@@ -38,11 +38,11 @@ public class ServiceNodeArgs {
             System.out.println("------------------ FileReader is ready " + reader.ready());
             JSONObject args = (JSONObject) jsonParser.parse(reader);
             System.out.println("------------------ JSON Object args is empty " + args.isEmpty());
-            System.out.println("------------------ Server URI is " + args.get("orhestrator"));
+            System.out.println("------------------ Server URI is " + args.get("orchestrator"));
             int typeSelector = Integer.parseInt(args.get("nodeType").toString());
 
             System.out.println(" **** ----- Node Type number is " + typeSelector);
-            serverUri = new URI(args.get("orhestrator").toString());
+            serverUri = new URI(args.get("orchestrator").toString());
             serviceFile = new File(args.get("serviceFile").toString());
             serviceState = new File(args.get("serviceState").toString());
             serviceAddress = new URI(args.get("serviceAddress").toString());

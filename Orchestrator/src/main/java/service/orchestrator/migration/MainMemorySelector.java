@@ -21,6 +21,13 @@ public class MainMemorySelector implements Selector {
         return nonNull(nodeCpuPair) ? nodeCpuPair.node : null;
     }
 
+    @Override
+    public ServiceNode mockSelect(Collection<ServiceNode> nodes, MobileClient mobileClient, ServiceNode badNode) {
+        ServiceNode serviceNode = select(nodes,mobileClient);
+        if(serviceNode.equals(badNode)) return null;
+        return serviceNode;
+    }
+
     private static class NodeMemory implements Comparable<NodeMemory> {
         final ServiceNode node;
         private final double memoryUtilization;

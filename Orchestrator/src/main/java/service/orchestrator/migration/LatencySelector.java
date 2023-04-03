@@ -35,12 +35,6 @@ public class LatencySelector implements Selector {
             }
         }
         return returnNode;
-
-//        MockNodeLatencyPair yay = nodes.stream()
-//                .map(MockNodeLatencyPair::new)
-//                .min(naturalOrder())
-//                .orElse(null);
-//        return nonNull(yay) ? yay.node : null;
     }
 
     private static class MockNodeLatencyPair implements Comparable<MockNodeLatencyPair> {

@@ -84,7 +84,7 @@ public class Main implements Runnable {
             case JITTER: return new JitterSelector();
             case CPU: return new CpuSelector();
             case MEMORY: return new MainMemorySelector();
-            case COMBINED: return new CombinedSelector(new LatencySelector(), new CpuSelector());
+            case COMBINED: return new CombinedSelector(new LatencySelector(),new JitterSelector(),new CpuSelector(),new MainMemorySelector());
             default: return new LatencySelector();
         }
 //        return new JitterSelector();
@@ -103,6 +103,7 @@ public class Main implements Runnable {
             case JITTER: return new JitterTrigger(selector,orchestrator);
             case CPU: return new CpuTrigger(selector, orchestrator);
             case MEMORY: return new MainMemoryTrigger(selector, orchestrator);
+            case COMBINED: return new CombinedTrigger(selector,orchestrator);
             default: return new LatencyTrigger(selector, orchestrator);
         }
 //        return new JitterTrigger(selector,orchestrator);

@@ -20,4 +20,9 @@ public class SimpleSelector implements Selector {
         int index = random.nextInt(nodes.size());
         return new ArrayList<>(nodes).get(index);
     }
+
+    @Override
+    public ServiceNode mockSelect(Collection<ServiceNode> nodes, MobileClient mobileClient, ServiceNode badNode) {
+        return null;
+    }
 }

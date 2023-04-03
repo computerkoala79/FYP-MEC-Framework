@@ -7,6 +7,7 @@ import ie.ucd.mecframework.messages.service.StartServiceRequest;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import service.core.*;
@@ -50,7 +51,7 @@ public class Orchestrator extends WebSocketServer implements Migrator {
     private static final ServiceNode NULL_SERVICE_NODE =
             new ServiceNode(UUID.fromString("00000000-0000-0000-0000-000000000000"), null);
 
-    // todo remove this from the framework
+        // todo remove this from the framework
     private static final String serviceName = "stream";
 
     private final Selector selector;
@@ -63,6 +64,10 @@ public class Orchestrator extends WebSocketServer implements Migrator {
         gson = Gsons.orchestratorGson();
         heartbeatScheduler.scheduleAtFixedRate(
                 this::broadcastHeartbeats, HEARTBEAT_REQUEST_PERIOD, HEARTBEAT_REQUEST_PERIOD, TimeUnit.SECONDS);
+    }
+
+    public Orchestrator getOrch(){
+        return this;
     }
 
     private static URI mapToUri(InetSocketAddress address) {
@@ -146,6 +151,7 @@ public class Orchestrator extends WebSocketServer implements Migrator {
                 break;
         }
         logger.debug(" -- - --- --  Message Type " + messageObj.getType() + " --- ----");
+        writeOutputToFIle(messageObj);
     }
 
     // todo take the port number of the node's serviceAddress and the IP address of the node itself
@@ -324,8 +330,22 @@ public class Orchestrator extends WebSocketServer implements Migrator {
     private void writeOutputToFIle(Message message){
         FileWriter file = null;
         try {
-            file = new FileWriter("orchestratornode.json", true);
+            file = new FileWriter("orchestratormessage.json", false);
             file.write(gson.toJson(message));
+            file.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        writeOrchestratorJSON();
+    }
+
+    private void writeOrchestratorJSON(){
+        try {
+            FileWriter file = new FileWriter("orchestratornode.json");
+            JSONObject orch = new JSONObject();
+            orch.put("Port",getPort());
+            orch.put("ServiceNodes",serviceNodeRegistry.getServiceNodes().size());
+            file.write(orch.toJSONString());
             file.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
