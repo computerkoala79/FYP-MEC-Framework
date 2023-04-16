@@ -7,7 +7,6 @@ import ie.ucd.mecframework.messages.service.StartServiceRequest;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
-import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import service.core.*;
@@ -18,11 +17,9 @@ import service.orchestrator.migration.Selector;
 import service.orchestrator.nodes.ServiceNode;
 import service.orchestrator.nodes.ServiceNodeRegistry;
 import service.orchestrator.properties.OrchestratorProperties;
+import service.util.Debugger;
 import service.util.Gsons;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -64,10 +61,6 @@ public class Orchestrator extends WebSocketServer implements Migrator {
         gson = Gsons.orchestratorGson();
         heartbeatScheduler.scheduleAtFixedRate(
                 this::broadcastHeartbeats, HEARTBEAT_REQUEST_PERIOD, HEARTBEAT_REQUEST_PERIOD, TimeUnit.SECONDS);
-    }
-
-    public Orchestrator getOrch(){
-        return this;
     }
 
     private static URI mapToUri(InetSocketAddress address) {
@@ -151,7 +144,7 @@ public class Orchestrator extends WebSocketServer implements Migrator {
                 break;
         }
         logger.debug(" -- - --- --  Message Type " + messageObj.getType() + " --- ----");
-        writeOutputToFIle(messageObj);
+//        writeOutputToFIle(messageObj);
     }
 
     // todo take the port number of the node's serviceAddress and the IP address of the node itself
@@ -253,6 +246,7 @@ public class Orchestrator extends WebSocketServer implements Migrator {
 
     // updates the service statuses of the ServiceNodes after migration.
     private void handleMigrationSuccess(MigrationSuccess migrationSuccess) {
+        Debugger.write("inside handle migration success");
         UUID sourceUuid = migrationSuccess.getSourceHostUuid();
         UUID targetUuid = migrationSuccess.getTargetHostUuid();
         serviceNodeRegistry.recordMigration(sourceUuid, targetUuid);
@@ -327,28 +321,4 @@ public class Orchestrator extends WebSocketServer implements Migrator {
         mobileClientRegistry.removeClientWithWebsocket(webSocket);
     }
 
-    private void writeOutputToFIle(Message message){
-        FileWriter file = null;
-        try {
-            file = new FileWriter("orchestratormessage.json", false);
-            file.write(gson.toJson(message));
-            file.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        writeOrchestratorJSON();
-    }
-
-    private void writeOrchestratorJSON(){
-        try {
-            FileWriter file = new FileWriter("orchestratornode.json");
-            JSONObject orch = new JSONObject();
-            orch.put("Port",getPort());
-            orch.put("ServiceNodes",serviceNodeRegistry.getServiceNodes().size());
-            file.write(orch.toJSONString());
-            file.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

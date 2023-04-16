@@ -1,0 +1,28 @@
+{
+  "uuid": "c9fcaeed-efc4-4567-8c7f-dcec06c5a188",
+  "serviceRunning": true,
+  "serviceInstalled": true,
+  "cpuLoad": [
+    1.1203969183973672,
+    1.0876996007984032,
+    1.091875
+  ],
+  "memoryLoad": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "mainMemory": [],
+  "storage": [],
+  "latencies": {
+    "20454d8b-d6d3-45f5-a0e2-83bb8db9f2aa": [
+      1000,
+      1500,
+      1400,
+      1300,
+      1200
+    ]
+  },
+  "serviceHostAddress": "http://localhost:8090",
+  "type": "NodeInfo"
+}

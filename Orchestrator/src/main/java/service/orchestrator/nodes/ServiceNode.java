@@ -4,6 +4,7 @@ import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import service.core.NodeInfo;
+import service.util.Debugger;
 
 import java.net.InetAddress;
 import java.net.URI;
@@ -60,12 +61,13 @@ public class ServiceNode {
     }
 
     private void recordMetrics(NodeInfo nodeInfo) {
+        Debugger.write("Recording Service Node Metrics");
         cpuLoad.addAll(nodeInfo.getCpuLoad());
         ramLoad.addAll(nodeInfo.getMemoryLoad());
         storage.addAll(nodeInfo.getStorage());
         mainMemory.addAll(nodeInfo.getMainMemory());
         addAllLatencies(nodeInfo.getLatencies());
-        this.averageLatency = nodeInfo.getAverageLatency();
+        averageLatency = nodeInfo.getAverageLatency();
     }
 
     private void recordOtherFields(NodeInfo nodeInfo) {

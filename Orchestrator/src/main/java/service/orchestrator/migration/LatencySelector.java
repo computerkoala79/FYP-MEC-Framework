@@ -1,11 +1,12 @@
 package service.orchestrator.migration;
 
+import service.orchestrator.properties.OrchestratorProperties;
+import service.util.Debugger;
 import service.orchestrator.clients.MobileClient;
 import service.orchestrator.nodes.ServiceNode;
 
 import java.util.Collection;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static java.util.Comparator.naturalOrder;
 import static java.util.Objects.nonNull;
@@ -23,11 +24,14 @@ public class LatencySelector implements Selector {
     }
 
     public ServiceNode mockSelect(Collection<ServiceNode> nodes, MobileClient mobileClient, ServiceNode badNode){
-        System.out.println("--------- inside mock latency selector - -------");
-        double lowestAvgLatency = 100000;
+        Debugger.write("Inside Mock Latency Selector");
+        OrchestratorProperties p = OrchestratorProperties.get();
+        Debugger.write("Latency Target: " + p.getMaxLatency());
+        double lowestAvgLatency = p.getMaxLatency();
         ServiceNode returnNode = null;
         for(ServiceNode node : nodes){
             if(!node.equals(badNode)){
+                Debugger.write("Node Average Latency: "+ node.getAverageLatency());
                 if(node.getAverageLatency() < lowestAvgLatency) {
                     lowestAvgLatency = node.getAverageLatency();
                     returnNode = node;

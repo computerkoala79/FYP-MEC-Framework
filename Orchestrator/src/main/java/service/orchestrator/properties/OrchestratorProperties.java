@@ -2,6 +2,7 @@ package service.orchestrator.properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import service.orchestrator.UpdateOrchestratorJSON;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -89,6 +90,10 @@ public class OrchestratorProperties {
     public long getHeartbeatPeriod() {
         String heartbeatFrequency = properties.getProperty("orchestrator.heartbeat.frequency", "10");
         return Long.parseLong(heartbeatFrequency);
+    }
+
+    public String getTriggerType(){
+        return properties.getProperty("application.trigger.type","LATENCY");
     }
 
     public int getMaxJitter(){

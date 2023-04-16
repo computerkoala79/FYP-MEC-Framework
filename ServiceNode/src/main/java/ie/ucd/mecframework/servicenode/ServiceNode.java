@@ -152,7 +152,4 @@ public class ServiceNode implements Runnable {
 
     public enum State {STABLE, TRANSFER_SERVER, TRANSFER_CLIENT}
 
-    public ServiceNodeMetrics getMetrics() {
-        return metrics;
-    }
 }

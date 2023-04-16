@@ -6,6 +6,7 @@ import ie.ucd.mecframework.service.ServiceController;
 import ie.ucd.mecframework.servicenode.ServiceNodeProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import service.util.Debugger;
 
 import java.io.File;
 import java.net.InetSocketAddress;
@@ -31,7 +32,7 @@ public class StatelessMigrationStrategy implements MigrationStrategy {
 
     @Override
     public List<InetSocketAddress> migrateService() {
-        logger.debug(" -- --- - - --- inside migrate service method");
+        Debugger.write("Migrate Service");
         controller.stopService();
         launchTransferServer(nodeProperties.getActualTransferServerPortNumber1());
         return List.of(

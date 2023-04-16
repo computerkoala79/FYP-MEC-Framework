@@ -1,10 +1,12 @@
 package service.core;
 
 import org.java_websocket.WebSocket;
+import service.util.Debugger;
 
 import java.net.InetAddress;
 import java.net.URI;
 import java.util.*;
+import java.util.stream.Collectors;
 
 // todo remove unnecessary fields
 public class NodeInfo extends Message {
@@ -48,20 +50,22 @@ public class NodeInfo extends Message {
     }
 
     public void setLatencies(Map<UUID, List<Long>> latencies) {
+        Collection<List<Long>> l = latencies.values();
+
         this.latencies = latencies;
     }
 
     public double getAverageLatency(){
-        Collection<List<Long>> latencyCollection = latencies.values();
-        Object[] latencyArray = latencyCollection.toArray();
+        StringBuilder s = new StringBuilder();
+        s.append("Average Latency: ");
+        Long[] latencyArray = latencies.values().stream().flatMap(List::stream).toArray(Long[]::new);
         double count = latencyArray.length;
-        double totalLatency = 0;
-        for(Object latency : latencyArray){
-            if(latency instanceof Long){
-                Long longlat = (Long) latency;
-                totalLatency += longlat;
-            }
+        long totalLatency = 0;
+        for(long latency : latencyArray){
+            totalLatency += latency;
+            s.append(latency + " ");
         }
+        Debugger.write(s.toString());
         return totalLatency / count;
     }
 

@@ -9,6 +9,7 @@ import service.orchestrator.clients.MobileClientRegistry;
 import service.orchestrator.nodes.ServiceNode;
 import service.orchestrator.nodes.ServiceNodeRegistry;
 import service.orchestrator.properties.OrchestratorProperties;
+import service.util.Debugger;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -84,6 +85,7 @@ public class LatencyTrigger implements Trigger {
     private void mockTriggerMigration(ServiceNode currentServiceNode){
         Collection<ServiceNode> allServiceNodes = ServiceNodeRegistry.get().getServiceNodes();
         ServiceNode migrationTarget = ((LatencySelector)selector).mockSelect(allServiceNodes, null,currentServiceNode);
+        Debugger.write(migrationTarget.toString());
         if (nonNull(migrationTarget)) {
             migrator.migrate(currentServiceNode, migrationTarget);
         }
