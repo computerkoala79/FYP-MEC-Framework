@@ -98,14 +98,15 @@ public class Main implements Runnable {
     }
 
     private Trigger getTrigger(TriggerType triggerType, Selector selector, Orchestrator orchestrator) {
-        switch (triggerType){
-            case LATENCY: return new LatencyTrigger(selector, orchestrator);
-            case JITTER: return new JitterTrigger(selector,orchestrator);
-            case CPU: return new CpuTrigger(selector, orchestrator);
-            case MEMORY: return new MainMemoryTrigger(selector, orchestrator);
-            case COMBINED: return new CombinedTrigger(selector,orchestrator);
-            default: return new LatencyTrigger(selector, orchestrator);
-        }
+        return new DynamicTrigger(selector,orchestrator);
+//        switch (triggerType){
+//            case LATENCY: return new LatencyTrigger(selector, orchestrator);
+//            case JITTER: return new JitterTrigger(selector,orchestrator);
+//            case CPU: return new CpuTrigger(selector, orchestrator);
+//            case MEMORY: return new MainMemoryTrigger(selector, orchestrator);
+//            case COMBINED: return new CombinedTrigger(selector,orchestrator);
+//            default: return new LatencyTrigger(selector, orchestrator);
+//        }
 //        return new JitterTrigger(selector,orchestrator);
 //        return new LatencyTrigger(selector, orchestrator);
 //        return new CpuTrigger(selector, orchestrator);

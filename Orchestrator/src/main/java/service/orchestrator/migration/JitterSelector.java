@@ -10,7 +10,7 @@ import java.util.*;
 
 public class JitterSelector implements Selector{
 
-    private static final Logger logger = LoggerFactory.getLogger(LatencyTrigger.class);
+    private static final Logger logger = LoggerFactory.getLogger(JitterSelector.class);
     @Override
     public ServiceNode select(Collection<ServiceNode> nodes, MobileClient mobileClient) {
         ServiceNode nonJitteryNode = null;

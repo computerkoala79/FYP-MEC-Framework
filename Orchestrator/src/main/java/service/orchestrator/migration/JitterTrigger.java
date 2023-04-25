@@ -17,7 +17,7 @@ public class JitterTrigger implements Trigger{
 
     private FileWriter file;
 
-    private static final Logger logger = LoggerFactory.getLogger(LatencyTrigger.class);
+    private static final Logger logger = LoggerFactory.getLogger(JitterTrigger.class);
 
     private final Selector selector;
     private final Migrator migrator;

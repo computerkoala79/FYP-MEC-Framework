@@ -276,6 +276,7 @@ public class Orchestrator extends WebSocketServer implements Migrator {
 
     @Override
     public void migrate(ServiceNode source, ServiceNode target) {
+        Debugger.write("Inside Migrate Method");
         if (source.equals(target)) logger.info("Refusing to migrate: source==target.");
         else if (target.serviceInstalled) {
             logger.info("Service installed: starting service on {}", target);
@@ -287,6 +288,7 @@ public class Orchestrator extends WebSocketServer implements Migrator {
             sendAsJson(source.webSocket, request);
             broadcastMigrationAlert(source, target);
         }
+        Debugger.write("Last Line of Migrate Method");
     }
 
     private void sendStartServiceRequest(ServiceNode target) {
