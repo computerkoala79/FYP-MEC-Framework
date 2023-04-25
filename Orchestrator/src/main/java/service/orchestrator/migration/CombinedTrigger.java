@@ -40,8 +40,6 @@ public class CombinedTrigger implements Trigger {
     public void examine(Collection<ServiceNode> hostingNodes){
         OrchestratorProperties properties = OrchestratorProperties.get();
         logger.debug("{} nodes in examine", hostingNodes.size());
-
-
     }
 
     private boolean latencyTrigger(Collection<ServiceNode> hostingNodes){

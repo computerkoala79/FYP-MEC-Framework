@@ -41,7 +41,8 @@ public class CpuTrigger implements Trigger {
 
     private void triggerMigration(ServiceNode currentServiceNode) {
         Collection<ServiceNode> allServiceNodes = ServiceNodeRegistry.get().getServiceNodes();
-        ServiceNode migrationTarget = selector.select(allServiceNodes, null);
+//        ServiceNode migrationTarget = selector.select(allServiceNodes, null);
+        ServiceNode migrationTarget = selector.mockSelect(allServiceNodes,null,currentServiceNode);
         if (nonNull(migrationTarget)) {
             migrator.migrate(currentServiceNode, migrationTarget);
         }

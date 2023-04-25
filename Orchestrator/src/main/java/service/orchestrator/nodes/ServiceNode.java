@@ -15,6 +15,9 @@ import java.util.stream.DoubleStream;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import java.lang.management.ManagementFactory;
+import com.sun.management.OperatingSystemMXBean;
+
 // todo fix this class: public fields, some getters/setters. Hard to know how to use
 /**
  * A class to represent Service Nodes as they are visible to the Orchestrator.
@@ -139,17 +142,31 @@ public class ServiceNode {
     }
 
     public double getMainMemoryScore() {
-        int upperBound = cpuLoad.size();
+        OperatingSystemMXBean osBean = (com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        long totalPhysicalMemory = osBean.getFreePhysicalMemorySize();
+        Debugger.write("Available Memory: " + totalPhysicalMemory);
+        int upperBound = mainMemory.size();
         int lowerBound = Integer.max(upperBound - 10, 0);
         List<Double> ramUtilizations = ramLoad.subList(lowerBound, upperBound);
         return getMean(ramUtilizations);
     }
 
     public double getMainMemoryInGibibytes() {
-        int upperBound = mainMemory.size();
-        int lowerBound = Integer.max(upperBound - 10, 0);
-        List<Long> memoryAmounts = mainMemory.subList(lowerBound, upperBound);
-        return getMean(memoryAmounts) / BYTES_PER_GIBIBYTE;
+//        int upperBound = mainMemory.size();
+//        int lowerBound = Integer.max(upperBound - 10, 0);
+//        List<Long> memoryAmounts = mainMemory.subList(lowerBound, upperBound);
+//        return getMean(memoryAmounts) / BYTES_PER_GIBIBYTE;
+        OperatingSystemMXBean osBean = (com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        long total = osBean.getTotalPhysicalMemorySize();
+        Debugger.write("Main Memory in Gigabytes: " + (total / 1000000000));
+        return (double) total / 1000000000;
+    }
+
+    public double getMainMemoryPercentFree(){
+        OperatingSystemMXBean osBean = (com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        long free = osBean.getFreePhysicalMemorySize();
+        long total = osBean.getTotalPhysicalMemorySize();
+        return (double) free / total;
     }
 
     public double getMeanLatency(UUID clientUuid) {
